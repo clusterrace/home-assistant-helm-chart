@@ -184,11 +184,16 @@ spec:
       {{- if not .Values.persistence.enabled }}
       - name: {{ include "home-assistant.fullname" . }}
         emptyDir: {}
+      {{- else if .Values.persistence.hostPath }}
+      - name: {{ include "home-assistant.fullname" . }}
+        hostPath:
+          path: {{ .Values.persistence.hostPath }}
+          type: Directory
       {{- end }}
       {{- if .Values.additionalVolumes }}
         {{- .Values.additionalVolumes | toYaml | nindent 6 }}
       {{- end }}
-  {{- if .Values.persistence.enabled }}
+  {{- if and .Values.persistence.enabled (not .Values.persistence.hostPath) }}
   volumeClaimTemplates:
   - metadata:
       name: {{ include "home-assistant.fullname" . }}
